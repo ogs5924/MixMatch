@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+
+{% block css_section %}
+    <link rel="stylesheet" href="static/css/home.css">
+{% endblock %}
+
+{% block main_content_section %}
+    <h1>  <img src = static/images/logo.png alt="logo1" style="float:right;height:69px;width:130px;"> Home</h1>
+    <a type="button" href="{% url 'logout' %}">Logout</a>
+    <a type="button" href="{% url 'see-all' %}">See all users</a>
+    <a type="button" href="{% url 'user-profile' %}">My profile</a>
+    <h2>{{ user.username }}</h2>
+    <p>Email: {{ user.email }}</p>
+    <p>Gender: {{ user.gender }}</p>
+    <p>Name: {{ user.get_full_name }}</p>
+    <div id="my_hobbies">
+        <h2>Hobbies</h2>
+    <ul>
+        {% for hobby in user.hobbies.all %}
+            <li>
+                <p>{{ hobby.name }}</p> <button type="button" id="my_hobby_{{ hobby.id }}" onclick="removeHobby({{ hobby.id }})">Remove Hobby</button>
+                <div id="details-result-my-hobby-{{ hobby.id }}"></div>
+            </li>
+        {% endfor %}
+    </ul>
+    </div>
+
+    <div id="my_friends">
+        <h2>Friends</h2>
+        <div>
+            <ul>
+                {% for friend in user.friends.all %}
+                    <li>
+                        <p>Username: {{ friend.username }}</p>
+                        <p>Name: {{ friend.get_full_name }}</p>
+                        <p>Gender: {{ friend.gender }}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+            <a href="{% url 'see-friends' %}" type="button">See all friends</a>
+        </div>
+    </div>
+
+    <div id="pending_requests">
+        <h2>Pending friend requests</h2>
+        <div>
+            {% for req in user.friend_requests.all %}
+                <div id="req_id_{{ req.id }}">
+                    <p>Request from {{ req.sender.username }}</p>
+                    <button type="button" value="accept" onclick="answer_req(true, {{ req.id }})">Accept</button>
+                    <button type="button" value="decline" onclick="answer_req(false, {{ req.id }})">Reject</button>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div id="msg_box">
+    <!--Messages go here-->
+        <h2>Messages</h2>
+        {% for msg in user.messages.all %}
+            <p>Message from <a>{{ msg.sender.us }}</a></p>
+        {% endfor %}
+    </div>
+
+    <div id="friends_closest_hobbies">
+        <h2>Friends with similar hobbies</h2>
+        <div>
+            <ul>
+                {% for friend, score in user.get_friends_with_similar_hobbies %}
+                    <li>
+                        <p>Username: {{ friend.username }}</p>
+                        <p>Name: {{ friend.get_full_name }}</p>
+                        <p>Gender: {{ friend.gender }}</p>
+                        <p>You have {{ score }} hobbies in common.</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div id="list_all_hobbies">
+        <h2>All Hobbies</h2>
+        {% for hobby in hobbies %}
+            <a href="{% url 'users-hobbies' id=hobby.id %}">{{hobby.name}}</a>
+            <button type="button" id="hobby_{{ hobby.id }}" onclick="addHobby({{ hobby.id }})">Add Hobby</button>
+            <div id="details-result-{{ hobby.id }}"></div>
+            <br/>
+            {% empty %}
+            <p>No registered hobbies yet.</p>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block javascript_section %}
+    <script>
+        function answer_req(accepted, id) {
+            let val = accepted ? "True" : "False";
+            $.ajax({
+                url: "{% url 'respond_to_req' %}",
+                type: 'PUT',
+                data: JSON.stringify({
+                    "answer": val,
+                    "req_id": id
+                }),
+                dataType: 'json',
+                beforeSend: function (tkn) {
+                    tkn.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+                },
+                success : function (e) {
+                    $('#req_id_'+id).html("<span style='color:green'>&nbsp;&#x2714;Success! Response Sent.</span>");
+                },
+                error: function (xhr, errmsg, err) {
+                    $('#req_id_'+id).html("<span style='color:red'>&nbsp;&#x2718;Oops! We have encountered an error!</span>");
+                    console.log(xhr.status + ": " + xhr.responseText)
+                }
+            });
+        }
+
+        function addHobby(id) {
+            $.ajax({
+                url: "{% url 'add_hobby' %}",
+                type: "POST",
+                data: JSON.stringify({
+                    "hobby_id": id
+                }),
+                dataType: 'json',
+                beforeSend: function (tkn) {
+                    tkn.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+                },
+                success : function (e) {
+                    $('#details-result-'+id).html("<span style='color:green'>&nbsp;&#x2714;Success! Hobby Added.</span>");
+                    $("#hobby_"+id).hide();
+                },
+            });
+        }
+
+        function removeHobby(id) {
+            $.ajax({
+                url: "{% url 'remove_hobby' %}",
+                type: "DELETE",
+                data: JSON.stringify({
+                    "hobby_id": id
+                }),
+                dataType: 'json',
+                beforeSend: function (tkn) {
+                    tkn.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+                },
+                success : function (e) {
+                    $('#details-result-my-hobby-'+id).html("<span style='color:green'>&nbsp;&#x2714;Success! Hobby Removed.</span>");
+                    $("#my_hobby_"+id).hide();
+                },
+            });
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}- Login - {% endblock %}
+
+{% block main_content_section %}
+    <div>
+        <h1>  <img src = "{% static 'images/logo.png' %}" alt="logo1" style="float:right;height:69px;width:130px;"> Login to Match Maker</h1>
+        <div>
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button class="sign-in-btn btn btn-success" type="submit">Login</button>
+            </form>
+        </div>
+        <br/>
+        <p>No Account? <a href="{% url 'register' %}">Register new account</a></p>
+
+    </div>
+
+
+{% endblock %}
+

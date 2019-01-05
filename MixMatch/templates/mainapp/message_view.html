@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Message View{% endblock %}
+
+{% block main_content_section %}
+{% if msg %}
+    <div>
+        <p>Sender: {{ msg.sender.username }}</p>    <p>Recipient: {{ msg.recipient.username }}</p>
+        <br>
+        <p>Sent @ {{ msg|date:"D d M Y" }} {{ msg|time:"H:i" }}</p>
+        <p>{{ msg.content }}</p>
+    </div>
+{% else %}
+    <p>Message was not found!</p>
+{% endif %}
+{% endblock %}

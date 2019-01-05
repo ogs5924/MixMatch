@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} {% endblock %}
+
+{% block css_section %}
+    <link rel="stylesheet" href="static/css/allusers.css">
+{% endblock %}
+
+{% block main_content_section %}
+    <h1>  <img src = static/images/logo.png alt="logo1" style="float:right;height:69px;width:130px;"> All Users </h1>
+    <div id="all_users">
+        {% for u in users %}
+            {% if u.username != user.username %}
+                <div>
+                    <h2>{{ u.get_full_name }}</h2>
+                    <p>Gender: {{ u.gender }}</p>
+                    <p>DOB: {{ u.dob }}</p>
+                    <p>Hobbies: </p>
+                    <ul>
+                        {% for hobby in u.hobbies.all %}
+                            <li>{{ hobby.name }}</li>
+                        {% endfor %}
+                    </ul>
+                {% if u not in user.friends.all %}
+                    <button type="button" id="Send_req_{{ u.id }}" onclick="send_request({{ u.id }})">Send Request</button>
+                    {% else %}
+                    <p>Already a friend!</p>
+                {% endif %}
+                    <div id="details-result-{{ u.id }}"></div>
+                </div>
+            {% endif %}
+        {% endfor %}
+        <a class="btn waves-effect waves-light blue edit-btn" type="button" id="home" href="{% url 'home' %}">Back Home</a>
+    </div>
+{% endblock %}
+
+{% block javascript_section %}
+<script>
+function filter(gender=null, min_age=null, max_age=null) {
+    // TODO do some validation -- CBA
+    {% comment %}$.ajax({
+        url: {% url 'filter_users' %},
+        type: 'GET',
+        data:
+    }){% endcomment %}
+}
+
+function send_request(id){
+    $.ajax({
+        url: "{% url 'send_friend_request' %}",
+        type: 'POST',
+        data: JSON.stringify({
+            "recipient": id
+        }),
+        dataType: 'json',
+        beforeSend: function (tkn) {
+            tkn.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+        },
+        success : function (e) {
+            $('#details-result-'+id).html("<span style='color:green'>&nbsp;&#x2714;Success! Request Sent.</span>");
+            $("#Send_req_"+id).hide();
+        },
+        error: function (xhr, errmsg, err) {
+            $('#details-result-'+id).html("<span style='color:red'>&nbsp;&#x2718;Oops! We've encountered an error!</span>");
+            // "+ JSON.parse(xhr.responseText)["error"] + "
+            console.log(xhr.status + ": " + xhr.responseText)
+        }
+    });
+}
+</script>
+{% endblock %}

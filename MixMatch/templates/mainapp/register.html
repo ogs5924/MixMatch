@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}- Register -{% endblock %}
+
+
+{% block main_content_section %}
+
+    <style>
+    form select{
+        display: block;
+    }
+    </style>
+    <div>
+        <h1>Registration</h1>
+        <div>
+            <form method="POST">
+                {% csrf_token %}
+                {% for field in form %}
+                    <p>
+                        {{ field.label_tag }}<br>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <br/><small style="color: black">{% autoescape off %}{{ field.help_text }}{% endautoescape %}</small>
+                        {% endif %}
+                        {% for err in field.errors %}
+                            <p style="color:red; font-weight: bold">&nbsp;&#x2718; {{ err }}</p>
+                        {% endfor %}
+                    </p>
+                {% endfor %}
+{#                Upload your profile picture!<input type="file" id="imgInp">#}
+                <button class="sign-in-btn btn btn-success" type="submit">Register</button>
+            </form>
+        </div>
+        <br/>
+        <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+    </div>
+{% endblock %}
+
+{% block javascript_section %}
+{#Can add AJAX here to check username#}
+{% endblock %}

@@ -1,0 +1,39 @@
+h1{
+    background-color:#30a69a;
+    color: #FFFFFF;
+}
+h2 {
+
+    background-color: #30a69a;
+    color: #FFFFFF;
+    border: 1px #30a69a;
+    margin: 25px 50px 75px 100px;
+    font-size: xx-large;
+}
+
+p{
+    font-size: x-large;
+    border: 1px;
+    margin: 20px 50px 15px 100px;
+}
+
+ul{
+    font-size: x-large;
+    border: 1px;
+    margin: 20px 50px 15px 100px;
+}
+
+button{
+    font-size: x-large;
+    border: 1px;
+    margin: 20px 50px 15px 100px;
+    background-color: #555555;
+    color:white;
+}
+
+a {
+    font-size: x-large;
+    border: 1px;
+    margin: 20px 50px 15px 100px;
+    color:black;
+}
